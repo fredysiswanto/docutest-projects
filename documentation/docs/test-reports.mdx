@@ -1,0 +1,51 @@
+---
+sidebar_position: 10
+---
+
+# Test Reports
+
+Laporan hasil testing otomatis dari Playwright E2E dan API testing.
+
+## Latest Test Report
+
+Klik link di bawah untuk melihat detail laporan testing lengkap:
+
+<a href="/test-reports/index.html" target="_blank" rel="noopener noreferrer">
+  📊 Lihat Test Report Lengkap
+</a>
+
+## Informasi Testing
+
+Test coverage meliputi:
+
+- **UI Testing (Admin & Client)** - End-to-end testing untuk admin panel dan client interface
+- **API Testing** - Testing untuk semua API endpoints
+
+## Cara Menjalankan Test
+
+```bash
+# Jalankan semua tests
+pnpm test
+
+# Jalankan tests dengan UI mode
+pnpm test:ui
+
+# Jalankan API tests
+pnpm test:api
+
+# Jalankan Admin UI tests
+pnpm test:ui-admin
+
+# Jalankan Client UI tests
+pnpm test:ui-client
+
+# Buka test report di browser
+pnpm report
+```
+
+## Test Report Location
+
+Local test reports tersimpan di:
+
+- `playwright-report/` - Full Playwright HTML report
+- `test-results/` - Test results metadata

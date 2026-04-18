@@ -1,0 +1,101 @@
+image: node:22
+
+definitions:
+  caches:
+    pnpm: $BITBUCKET_BUILD_DIR/.pnpm-store
+
+  steps:
+    - step: &install-deps
+        name: Install Dependencies
+        script:
+          - npm install -g pnpm@10.33.0
+          - pnpm install --frozen-lockfile
+        caches:
+          - pnpm
+
+    - step: &install-playwright
+        name: Install Playwright Browsers
+        script:
+          - npm install -g pnpm@10.33.0
+          - pnpm install --frozen-lockfile
+          - pnpm exec playwright install --with-deps
+        caches:
+          - pnpm
+
+    - step: &build-docs
+        name: Build Docusaurus
+        script:
+          - npm install -g pnpm@10.33.0
+          - pnpm install --frozen-lockfile
+          - cd documentation && pnpm build
+        artifacts:
+          - documentation/build/**
+
+    - step: &playwright-tests
+        name: Run Playwright Tests
+        script:
+          - npm install -g pnpm@10.33.0
+          - pnpm install --frozen-lockfile
+          - pnpm exec playwright install --with-deps
+          - pnpm test
+          - mkdir -p documentation/static/test-reports
+          - cp -r reports/* documentation/static/test-reports/ || true
+        artifacts:
+          - playwright-report/**
+          - test-results/**
+          - documentation/static/test-reports/**
+
+    - step: &deploy-docs
+        name: Deploy Docusaurus to Bitbucket Pages
+        script:
+          - npm install -g pnpm@10.33.0
+          - pnpm install --frozen-lockfile
+          - cd documentation && pnpm build
+          - apt-get update && apt-get install -y git
+          - git config user.name "Bitbucket Pipelines"
+          - git config user.email "pipelines@bitbucket.org"
+          - git remote set-url origin $BITBUCKET_GIT_HTTP_ORIGIN
+          - git fetch origin
+          - git checkout gh-pages || git switch --orphan gh-pages
+          - rm -rf *
+          - cp -r ../documentation/build/* .
+          - git add .
+          - git commit -m "chore: deploy docs [skip ci]" || true
+          - git push origin gh-pages || true
+        caches:
+          - pnpm
+
+pipelines:
+  branches:
+    main:
+      - step: *install-deps
+      - step: *playwright-tests
+      - step:
+          name: Commit Test Reports
+          script:
+            - apt-get update && apt-get install -y git
+            - git config user.name "Bitbucket Pipelines"
+            - git config user.email "pipelines@bitbucket.org"
+            - git add documentation/static/test-reports/
+            - git commit -m "chore: update test reports [skip ci]" || true
+            - git push origin $BITBUCKET_BRANCH || true
+      - step: *deploy-docs
+
+    master:
+      - step: *install-deps
+      - step: *playwright-tests
+      - step:
+          name: Commit Test Reports
+          script:
+            - apt-get update && apt-get install -y git
+            - git config user.name "Bitbucket Pipelines"
+            - git config user.email "pipelines@bitbucket.org"
+            - git add documentation/static/test-reports/
+            - git commit -m "chore: update test reports [skip ci]" || true
+            - git push origin $BITBUCKET_BRANCH || true
+      - step: *deploy-docs
+
+  pull-requests:
+    '**':
+      - step: *install-deps
+      - step: *playwright-tests

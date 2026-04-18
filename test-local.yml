@@ -1,0 +1,39 @@
+name: Local Runner Test
+
+on:
+  push:
+    branches: [ master, dev ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  test:
+    # 'self-hosted' adalah keyword wajib untuk menggunakan runner lokal Anda
+    runs-on: self-hosted
+
+    steps:
+      # 1. Ambil kode dari repositori
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      # 2. Install pnpm (jika belum ada di runner)
+      - name: Install pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 8 # Tentukan versi pnpm yang Anda gunakan
+
+      # 3. Setup Node.js
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.20.2'
+          cache: 'pnpm' # Mengaktifkan cache pnpm otomatis
+
+      # 4. Install Dependencies
+      # --frozen-lockfile memastikan versi package sesuai dengan pnpm-lock.yaml
+      - name: Install Dependencies
+        run: pnpm install --frozen-lockfile
+
+      # 5. Jalankan Testing
+      - name: Run Tests
+        run: pnpm test

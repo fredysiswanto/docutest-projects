@@ -1,0 +1,21 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "module": "commonjs",
+    "resolveJsonModule": true,
+    "types": ["node"],
+    "strict": true,
+    "baseUrl": ".",
+    "paths": {
+      "@helpers/*": ["app/helpers/*"],
+      "@utils/*": ["app/utils/*"],
+      "@data/*": ["app/data/*"],
+      "@schemas/*": ["app/schemas/*"],
+      "@fixtures/*": ["app/fixtures/*"],
+      "@setup/*": ["app/setup/*"]
+    },
+
+    "ignoreDeprecations": "6.0"
+  },
+  "include": ["**/*.ts", "**/types.d.ts"]
+}
